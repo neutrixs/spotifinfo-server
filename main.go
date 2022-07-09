@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/neutrixs/spotifinfo-server/pkg/env"
+	"github.com/neutrixs/spotifinfo-server/pkg/spa"
 )
 
 func main() {
@@ -25,9 +26,9 @@ func main() {
 
 	r := mux.NewRouter()
 
-	spa := spaHandler {
-		staticPath: staticDirPath,
-		indexPath: "index.html",
+	spa := spa.Handler {
+		StaticPath: staticDirPath,
+		IndexPath: "index.html",
 	}
 
 	r.PathPrefix("/").Handler(spa)
