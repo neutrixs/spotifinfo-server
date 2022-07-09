@@ -23,14 +23,13 @@ func main() {
 	if !strings.HasPrefix(PORT, ":") {
 		PORT = ":" + PORT
 	}
-
-	r := mux.NewRouter()
-
+	
 	spa := spa.Handler {
 		StaticPath: staticDirPath,
 		IndexPath: "index.html",
 	}
-
+	
+	r := mux.NewRouter()
 	r.PathPrefix("/").Handler(spa)
 
 	http.Handle("/", r)
