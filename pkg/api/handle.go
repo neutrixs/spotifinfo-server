@@ -9,9 +9,8 @@ import (
 func Handle(w http.ResponseWriter, r *http.Request) {
 	endpoint := mux.Vars(r)["endpoint"]
 
-	w.Write([]byte(endpoint))
-
 	switch endpoint {
-	
+	case "login":
+		login(w,r)
 	}
 }
