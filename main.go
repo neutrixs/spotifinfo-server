@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/neutrixs/spotifinfo-server/pkg/env"
 )
 
@@ -22,6 +23,15 @@ func main() {
 		PORT = ":" + PORT
 	}
 
-	http.Handle("/", http.FileServer(http.Dir(staticDirPath)))
+	r := mux.NewRouter()
+
+	spa := spaHandler {
+		staticPath: staticDirPath,
+		indexPath: "index.html",
+	}
+
+	r.PathPrefix("/").Handler(spa)
+
+	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(PORT, nil))
 }
