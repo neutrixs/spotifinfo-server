@@ -26,7 +26,10 @@ func (s statesScope) Add(state, scope string) {
 		log.Println(err)
 	}
 
-	os.WriteFile(DBFilePath, jsonData, 0755)
+	err = os.WriteFile(DBFilePath, jsonData, 0755)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 var InitStates = statesScope {
