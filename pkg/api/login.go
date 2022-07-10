@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/neutrixs/spotifinfo-server/pkg/db/state"
 	"github.com/neutrixs/spotifinfo-server/pkg/env"
 	"github.com/neutrixs/spotifinfo-server/pkg/querystring"
-	"github.com/neutrixs/spotifinfo-server/pkg/runtimedb/state"
 	"golang.org/x/exp/slices"
 )
 
