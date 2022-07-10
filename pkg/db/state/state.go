@@ -21,7 +21,7 @@ func (s statesScope) Add(state, scope string) {
 	DBDIR := getDatabaseDirectory()
 	DBFilePath := path.Join(DBDIR, databaseName)
 
-	jsonData, err := json.Marshal(s)
+	jsonData, err := json.Marshal(s.states)
 	if err != nil {
 		log.Println(err)
 	}
@@ -32,6 +32,25 @@ func (s statesScope) Add(state, scope string) {
 	}
 }
 
+func getCurrentDatabase() map[string]string {
+	DBDir := getDatabaseDirectory()
+	DBFilePath := path.Join(DBDir, databaseName)
+
+	file, err := os.ReadFile(DBFilePath)
+	if err != nil {
+		log.Println(err)
+	}
+
+	var data = make(map[string]string)
+
+	err = json.Unmarshal(file, &data)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return data
+}
+
 var InitStates = statesScope {
-	states: make(map[string]string),
+	states: getCurrentDatabase(),
 }
