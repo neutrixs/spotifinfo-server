@@ -8,7 +8,7 @@ import (
 
 	"github.com/neutrixs/spotifinfo-server/pkg/env"
 	"github.com/neutrixs/spotifinfo-server/pkg/querystring"
-	"github.com/neutrixs/spotifinfo-server/pkg/runtimedb"
+	"github.com/neutrixs/spotifinfo-server/pkg/runtimedb/state"
 	"golang.org/x/exp/slices"
 )
 
@@ -28,12 +28,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	runtimedb.InitStates.Add(
-		runtimedb.EachState{
-			Name: newState,
-			Scope: scope,
-		},
-	)
+	state.InitStates.Add(newState, scope)
 
 	client_id, err := env.Get("CLIENT_ID")
 	if err != nil {
