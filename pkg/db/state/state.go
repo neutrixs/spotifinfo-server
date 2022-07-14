@@ -15,9 +15,7 @@ type statesScope struct {
 	states map[string]string
 }
 
-func (s statesScope) Add(state, scope string) {
-	s.states[state] = scope
-
+func (s statesScope) syncDB() {
 	DBDIR := getDatabaseDirectory()
 	DBFilePath := path.Join(DBDIR, databaseName)
 
@@ -30,6 +28,16 @@ func (s statesScope) Add(state, scope string) {
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func (s statesScope) Add(state, scope string) {
+	s.states[state] = scope
+	s.syncDB()
+}
+
+func (s statesScope) Remove(state string) {
+	delete(s.states, state)
+	s.syncDB()
 }
 
 func getCurrentDatabase() map[string]string {
