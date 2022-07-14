@@ -1,4 +1,4 @@
-package api
+package login
 
 import (
 	"log"
@@ -12,7 +12,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func login(w http.ResponseWriter, r *http.Request) {
+func Handle(w http.ResponseWriter, r *http.Request) {
 	cookies := r.Cookies()
 
 	stateCookieIndex := slices.IndexFunc(cookies, func(c *http.Cookie) bool {return c.Name == "state"})

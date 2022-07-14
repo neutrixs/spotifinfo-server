@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/neutrixs/spotifinfo-server/pkg/api/login"
 )
 
 func Handle(w http.ResponseWriter, r *http.Request) {
@@ -11,6 +12,6 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 
 	switch endpoint {
 	case "login":
-		login(w,r)
+		login.Handle(w, r)
 	}
 }
