@@ -31,7 +31,7 @@ func main() {
 	}
 	
 	r := mux.NewRouter()
-	r.PathPrefix("/api/{endpoint}/").Methods("GET", "POST").HandlerFunc(api.Handle)
+	r.Path("/api/{endpoint}").Methods("GET", "POST").HandlerFunc(api.Handle)
 	r.PathPrefix("/").Handler(spa)
 
 	http.Handle("/", r)
