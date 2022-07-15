@@ -40,6 +40,10 @@ func (s statesScope) Remove(state string) {
 	s.syncDB()
 }
 
+func (s statesScope) Get(state string) string {
+	return s.states[state]
+}
+
 func getCurrentDatabase() map[string]string {
 	DBDir := getDatabaseDirectory()
 	DBFilePath := path.Join(DBDir, databaseName)

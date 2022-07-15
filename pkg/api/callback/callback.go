@@ -7,9 +7,11 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 
+	"github.com/neutrixs/spotifinfo-server/pkg/db/state"
 	"github.com/neutrixs/spotifinfo-server/pkg/db/token"
 	"github.com/neutrixs/spotifinfo-server/pkg/env"
 )
@@ -32,6 +34,12 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	if queries.Get("code") == "" || queries.Get("state") == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(closeWindow))
+		return
+	}
+
+	if state.InitStates.Get(queries.Get("state")) == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("State not found"))
 		return
 	}
 
@@ -90,6 +98,12 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !scopesMatch(state.InitStates.Get(queries.Get("state")), parsedResponse.Scope) {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Mismatched scope"))
+		return
+	}
+
 	token.InitToken.Add(queries.Get("state"), &token.EachState{
 		RefreshToken: parsedResponse.RefreshToken,
 	})
@@ -104,6 +118,16 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &stateCookie)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(closeWindow))
+}
+
+func scopesMatch(scopes1, scopes2 string) bool {
+	sortedScopes1 := strings.Split(scopes1, " ")
+	sort.Strings(sortedScopes1)
+
+	sortedScopes2 := strings.Split(scopes2, " ")
+	sort.Strings(sortedScopes2)
+
+	return strings.Join(sortedScopes1, " ") == strings.Join(sortedScopes2, " ")
 }
 
 type spotifyAPIResponse struct {
