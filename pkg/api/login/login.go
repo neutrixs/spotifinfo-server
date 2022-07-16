@@ -13,6 +13,11 @@ import (
 )
 
 func Handle(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
 	cookies := r.Cookies()
 
 	stateCookieIndex := slices.IndexFunc(cookies, func(c *http.Cookie) bool {return c.Name == "state"})
