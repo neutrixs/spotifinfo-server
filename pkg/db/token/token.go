@@ -39,6 +39,11 @@ func (t tokenList) Add(state string, data *EachState) {
 	t.syncDB()
 }
 
+func (t tokenList) Get(state string) (EachState, bool) {
+	val, ok := t.tokens[state]
+	return val, ok
+}
+
 func getCurrentDatabase() map[string]EachState {
 	DBDir := getDatabaseDirectory()
 	DBFilePath := path.Join(DBDir, databaseName)
