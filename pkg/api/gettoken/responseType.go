@@ -13,4 +13,5 @@ type successResponseType struct {
 type failedResponseType struct {
 	Success 	bool		`json:"success"`
 	ErrorCodes 	[]string	`json:"error-codes"`
+	Relogback	bool 		`json:"relogback"`
 }
