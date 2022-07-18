@@ -5,6 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/neutrixs/spotifinfo-server/pkg/api/callback"
+	"github.com/neutrixs/spotifinfo-server/pkg/api/gettoken"
 	"github.com/neutrixs/spotifinfo-server/pkg/api/login"
 )
 
@@ -16,5 +17,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		login.Handle(w, r)
 	case "callback":
 		callback.Handle(w, r)
+	case "gettoken":
+		gettoken.Handle(w, r)
 	}
 }
