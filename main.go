@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/neutrixs/spotifinfo-server/pkg/api"
 	"github.com/neutrixs/spotifinfo-server/pkg/env"
 	"github.com/neutrixs/spotifinfo-server/pkg/spa"
 )
@@ -30,6 +31,7 @@ func main() {
 	}
 	
 	r := mux.NewRouter()
+	r.Path("/api/{endpoint}").Methods("GET", "POST").HandlerFunc(api.Handle)
 	r.PathPrefix("/").Handler(spa)
 
 	http.Handle("/", r)
