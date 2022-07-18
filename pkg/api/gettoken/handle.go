@@ -1,6 +1,7 @@
 package gettoken
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 
@@ -49,6 +50,27 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	if reCAPTCHAToken == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("missing reCAPTCHAToken body parameter"))
+		return
+	}
+
+	valid, errorCodes := reCAPTCHAIsValid(reCAPTCHAToken)
+	if !valid {
+		response := failedResponseType{
+			Success: false,
+			ErrorCodes: errorCodes,
+		}
+
+		json, err := json.Marshal(response)
+		if err != nil {
+			errorCode := http.StatusInternalServerError
+			w.WriteHeader(errorCode)
+			w.Write([]byte(http.StatusText(errorCode)))
+			return
+		}
+
+		w.WriteHeader(http.StatusForbidden)
+		w.Write(json)
+		w.Header().Set("Content-Type", "application/json")
 		return
 	}
 }
