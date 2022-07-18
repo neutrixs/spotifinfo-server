@@ -1,9 +1,11 @@
 package gettoken
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/neutrixs/spotifinfo-server/pkg/db/token"
+	"github.com/neutrixs/spotifinfo-server/pkg/querystring"
 )
 
 func Handle(w http.ResponseWriter, r *http.Request) {
@@ -25,6 +27,28 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("state not found"))
+		return
+	}
+
+	if r.Header.Get("Content-Type") != "application/x-www-form-urlencoded" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Content-Type not allowed"))
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		errorCode := http.StatusInternalServerError
+		w.WriteHeader(errorCode)
+		w.Write([]byte(http.StatusText(errorCode)))
+		return
+	}
+
+	bodyParams := querystring.Decode(string(body))
+	reCAPTCHAToken := bodyParams["reCAPTCHAToken"]
+	if reCAPTCHAToken == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("missing reCAPTCHAToken body parameter"))
 		return
 	}
 }
