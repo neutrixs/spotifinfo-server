@@ -27,8 +27,22 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 
 	stateData, ok := token.InitToken.Get(stateCookie)
 	if !ok {
+		response := failedResponseType{
+			Success: false,
+			ErrorCodes: []string{"state-not-found"},
+			Relogback: true,
+		}
+
+		json, err := json.Marshal(response)
+		if err != nil {
+			errorCode := http.StatusInternalServerError
+			w.WriteHeader(errorCode)
+			w.Write([]byte(http.StatusText(errorCode)))
+		}
+
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("state not found"))
+		w.Write(json)
+		w.Header().Set("Content-Type", "application/json")
 		return
 	}
 
