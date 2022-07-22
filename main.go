@@ -8,13 +8,17 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/neutrixs/spotifinfo-server/pkg/api"
 	"github.com/neutrixs/spotifinfo-server/pkg/env"
-	"github.com/neutrixs/spotifinfo-server/pkg/spa"
 )
 
 func main() {
 	staticDirPath, err := env.Get("STATIC_DIR_PATH")
 	if err != nil {
 		log.Fatal("No STATIC_DIR_PATH variable found")
+	}
+
+	indexHtmlPath, err := env.Get("INDEX_HTML_PATH")
+	if err != nil {
+		log.Fatal("No INDEX_HTML_PATH variable found")
 	}
 
 	PORT, err := env.Get("PORT")
@@ -25,14 +29,12 @@ func main() {
 		PORT = ":" + PORT
 	}
 	
-	spa := spa.Handler {
-		StaticPath: staticDirPath,
-		IndexPath: "index.html",
-	}
-	
 	r := mux.NewRouter()
 	r.Path("/api/{endpoint}").Methods("GET", "POST").HandlerFunc(api.Handle)
-	r.PathPrefix("/").Handler(spa)
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(staticDirPath))))
+	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, indexHtmlPath)
+	})
 
 	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(PORT, nil))
