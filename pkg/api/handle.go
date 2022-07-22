@@ -15,9 +15,16 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	switch endpoint {
 	case "login":
 		login.Handle(w, r)
+		return
 	case "callback":
 		callback.Handle(w, r)
+		return
 	case "gettoken":
 		gettoken.Handle(w, r)
+		return
 	}
+
+	status := http.StatusNotFound
+	w.WriteHeader(status)
+	w.Write([]byte(http.StatusText(status)))
 }
