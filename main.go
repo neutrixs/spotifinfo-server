@@ -20,9 +20,9 @@ func main() {
 		log.Fatal("No INDEX_HTML_PATH variable found")
 	}
 
-	PORT, err := env.Get("PORT")
+	LISTEN, err := env.Get("LISTEN")
 	if err != nil {
-		PORT = ":8080"
+		LISTEN = ":8080"
 	}
 	
 	r := mux.NewRouter()
@@ -33,5 +33,5 @@ func main() {
 	})
 
 	http.Handle("/", r)
-	log.Fatal(http.ListenAndServe(PORT, nil))
+	log.Fatal(http.ListenAndServe(LISTEN, nil))
 }
