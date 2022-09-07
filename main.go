@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/neutrixs/spotifinfo-server/pkg/api"
@@ -24,9 +23,6 @@ func main() {
 	PORT, err := env.Get("PORT")
 	if err != nil {
 		PORT = ":8080"
-	}
-	if !strings.HasPrefix(PORT, ":") {
-		PORT = ":" + PORT
 	}
 	
 	r := mux.NewRouter()
