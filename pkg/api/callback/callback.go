@@ -1,6 +1,7 @@
 package callback
 
 import (
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
@@ -11,8 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/neutrixs/spotifinfo-server/pkg/db/state"
-	"github.com/neutrixs/spotifinfo-server/pkg/db/token"
 	"github.com/neutrixs/spotifinfo-server/pkg/env"
 )
 
@@ -22,7 +21,7 @@ func init() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 }
 
-func Handle(w http.ResponseWriter, r *http.Request) {
+func Handle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -42,11 +41,21 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if state.InitStates.Get(queries.Get("state")) == "" {
+	var scopes string
+
+	loginRows, err := db.Query("SELECT scopes FROM login WHERE state=?", queries.Get("state"))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	next := loginRows.Next()
+	if !next {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("State not found"))
 		return
 	}
+	loginRows.Scan(&scopes)
 
 	clientID, err := env.Get("CLIENT_ID")
 	if err != nil {
@@ -103,15 +112,20 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !scopesMatch(state.InitStates.Get(queries.Get("state")), parsedResponse.Scope) {
+	if !scopesMatch(scopes, parsedResponse.Scope) {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Mismatched scope"))
 		return
 	}
 
-	token.InitToken.Add(queries.Get("state"), &token.EachState{
-		RefreshToken: parsedResponse.RefreshToken,
-	})
+	// token.InitToken.Add(queries.Get("state"), &token.EachState{
+	// 	RefreshToken: parsedResponse.RefreshToken,
+	// })
+
+	db.Query(
+		"INSERT INTO sessions (state, refresh_token, scopes) VALUES (?, ?, ?)",
+		queries.Get("state"), parsedResponse.RefreshToken, scopes,
+	)
 
 	stateCookie := http.Cookie{
 		Name: "state",

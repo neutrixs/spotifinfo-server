@@ -1,16 +1,17 @@
 package gettoken
 
 import (
+	"database/sql"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
-	"github.com/neutrixs/spotifinfo-server/pkg/db/token"
 	"github.com/neutrixs/spotifinfo-server/pkg/querystring"
 )
 
-func Handle(w http.ResponseWriter, r *http.Request) {
+func Handle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != http.MethodPost {
 		errorCode := http.StatusMethodNotAllowed
 		w.WriteHeader(errorCode)
@@ -25,8 +26,17 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stateData, ok := token.InitToken.Get(stateCookie)
-	if !ok {
+	var refreshToken string
+
+	sessionsRows, err := db.Query("SELECT refresh_token FROM sessions WHERE state=?", stateCookie)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	next := sessionsRows.Next()
+
+	//stateData, ok := token.InitToken.Get(stateCookie)
+	if !next {
 		response := failedResponseType{
 			Success: false,
 			ErrorCodes: []string{"state-not-found"},
@@ -45,6 +55,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		return
 	}
+	sessionsRows.Scan(&refreshToken)
 
 	if r.Header.Get("Content-Type") != "application/x-www-form-urlencoded" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -89,7 +100,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenData := getToken(stateData.RefreshToken)
+	tokenData := getToken(refreshToken)
 	if tokenData.AccessToken == "" {
 		response := failedResponseType{
 			Success: false,

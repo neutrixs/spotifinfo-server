@@ -20,13 +20,13 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 
 	switch endpoint {
 	case "login":
-		login.Handle(w, r)
+		login.Handle(w, r, db)
 		return
 	case "callback":
-		callback.Handle(w, r)
+		callback.Handle(w, r, db)
 		return
 	case "gettoken":
-		gettoken.Handle(w, r)
+		gettoken.Handle(w, r, db)
 		return
 	}
 

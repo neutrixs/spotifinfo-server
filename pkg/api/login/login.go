@@ -1,18 +1,18 @@
 package login
 
 import (
+	"database/sql"
 	"log"
 	"math/rand"
 	"net/http"
 	"time"
 
-	"github.com/neutrixs/spotifinfo-server/pkg/db/state"
 	"github.com/neutrixs/spotifinfo-server/pkg/env"
 	"github.com/neutrixs/spotifinfo-server/pkg/querystring"
 	"golang.org/x/exp/slices"
 )
 
-func Handle(w http.ResponseWriter, r *http.Request) {
+func Handle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -33,7 +33,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	state.InitStates.Add(newState, scope)
+	db.Query("INSERT INTO login (state, scopes) VALUES (?, ?)", newState, scope)
 
 	client_id, err := env.Get("CLIENT_ID")
 	if err != nil {
